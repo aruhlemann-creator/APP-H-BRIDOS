@@ -1,18 +1,149 @@
 # Receptor VLC (OOK)
 
-Receptor de comunicação por luz visível (On-Off Keying), feito com
-**Expo (React Native)**. Roda no **iPhone** e no **Android** com o mesmo código.
+Aplicativo que **recebe mensagens enviadas por luz**. Um celular (o
+transmissor) pisca o flash, e este app lê essas piscadas pela câmera ou pelo
+sensor de luz, transforma em texto e mostra a taxa de erro (BER).
 
-O app calibra o nível de luz ambiente, detecta o flash do transmissor,
-sincroniza pelo preâmbulo `10101010`, decodifica a mensagem em ASCII e calcula
-a BER comparando com o texto de referência.
+Funciona no **iPhone** e no **Android**.
 
-| Plataforma | Fonte de luz |
+| Celular | Como o app lê a luz |
 |---|---|
-| Android | sensor de luminosidade (lux) ou câmera |
-| iPhone | câmera (o iOS não libera o sensor de luz para apps) |
+| Android | sensor de luz do celular ou câmera |
+| iPhone | câmera (o iPhone não deixa apps usarem o sensor de luz) |
 
 ---
+
+# Guia passo a passo (para quem nunca programou)
+
+Você vai precisar de:
+
+- um **computador** (Mac ou Windows) com internet;
+- um **celular** (iPhone ou Android) **na mesma rede Wi-Fi** do computador.
+
+O computador "liga" o app, e o celular abre o app lendo um QR code.
+
+## Parte 1: preparar o computador (só na primeira vez)
+
+### 1. Instalar o Node.js
+
+O Node.js é o programa que faz o projeto rodar.
+
+1. Entre em **https://nodejs.org**.
+2. Clique no botão verde **LTS** (a versão recomendada) e baixe.
+3. Abra o arquivo baixado e clique em **Continuar / Próximo** até terminar.
+
+### 2. Baixar o projeto
+
+1. Entre na página do projeto no GitHub:
+   **https://github.com/aruhlemann-creator/APP-H-BRIDOS**
+2. Clique no botão verde **Code** e depois em **Download ZIP**.
+3. Abra a pasta **Downloads** e dê dois cliques no arquivo
+   `APP-H-BRIDOS-main.zip`. Vai aparecer a pasta **APP-H-BRIDOS-main**.
+
+### 3. Abrir o Terminal na pasta do projeto
+
+O Terminal é uma janela onde você digita comandos.
+
+**No Mac:**
+1. Abra o **Finder** e vá até a pasta **APP-H-BRIDOS-main**.
+2. Clique com o **botão direito** na pasta e escolha
+   **Serviços → Novo Terminal na Pasta**.
+   (Se não aparecer, abra o app **Terminal**, digite `cd ` com um espaço no
+   final, arraste a pasta para dentro da janela e aperte **Enter**.)
+
+**No Windows:**
+1. Abra a pasta **APP-H-BRIDOS-main** no Explorador de Arquivos.
+2. Clique na barra de endereço lá em cima, apague o que estiver escrito,
+   digite `cmd` e aperte **Enter**.
+
+Vai abrir uma janela de texto. É nela que você digita os comandos abaixo.
+
+### 4. Instalar as peças do projeto
+
+Digite o comando abaixo e aperte **Enter**:
+
+```
+npm install
+```
+
+Espere terminar (pode levar alguns minutos). Vão aparecer várias linhas;
+é normal. Quando o cursor voltar a piscar, terminou.
+
+> Só precisa fazer isso **uma vez**. Nas próximas vezes, pule direto para a Parte 3.
+
+## Parte 2: preparar o celular (só na primeira vez)
+
+Instale o app **Expo Go** (grátis):
+
+- **iPhone:** App Store → procure **Expo Go** → Obter.
+- **Android:** Play Store → procure **Expo Go** → Instalar.
+
+## Parte 3: abrir o app (toda vez que for usar)
+
+1. No Terminal, dentro da pasta do projeto, digite e aperte **Enter**:
+
+   ```
+   npm start
+   ```
+
+2. Espere aparecer um **QR code** (um quadrado de pontinhos) no Terminal.
+3. Abra o app no celular:
+   - **iPhone:** abra a **Câmera** normal do iPhone, aponte para o QR code e
+     toque no aviso amarelo **"Abrir no Expo Go"**.
+   - **Android:** abra o **Expo Go** e toque em **Scan QR code**. Aponte para
+     o QR code.
+4. Espere carregar (na primeira vez demora um pouco). Vai aparecer a tela
+   **Receptor VLC**.
+
+**Para desligar:** no Terminal, aperte as teclas **Ctrl** e **C** juntas.
+
+> Deixe o Terminal aberto enquanto estiver usando o app. Se fechar o
+> Terminal, o app para de funcionar no celular.
+
+## Parte 4: usar o app
+
+1. Em **Taxa de bits**, digite um número de **1 a 5**. Use o **mesmo número
+   configurado no transmissor**. Comece com **1** ou **2**, que funcionam melhor.
+2. Em **Fonte de luz**, escolha:
+   - **Sensor de luz** (só aparece no Android): o sensor fica perto da câmera
+     de selfie, no alto da tela;
+   - **Câmera frontal** ou **Câmera traseira**: aparece uma imagem da câmera
+     para você mirar.
+3. Aponte o flash do transmissor **bem de frente** para o sensor ou a câmera
+   escolhida, **com o flash apagado**.
+4. Toque em **INICIAR**. Na primeira vez, o celular pergunta se pode usar a
+   câmera: toque em **Permitir**.
+5. Espere aparecer **"Calibrando sensor..."** e, logo depois, comece a
+   transmissão no outro celular.
+6. Acompanhe na tela:
+   - **Sensor / Luz na Câmera:** o nível de luz medido agora;
+   - **Bits Recebidos:** os 0 e 1 que estão chegando;
+   - **Mensagem Decodificada:** o texto recebido e a **BER**
+     (0,000000 = nenhum erro).
+7. Para parar antes do fim, toque em **PARAR**.
+
+## Se der algum problema
+
+| O que aconteceu | O que fazer |
+|---|---|
+| `npm: command not found` ou `'npm' não é reconhecido` | O Node.js não foi instalado. Volte ao passo 1 da Parte 1 e depois **feche e abra o Terminal de novo**. |
+| O celular não abre o app pelo QR code | Confira se o celular e o computador estão **no mesmo Wi-Fi**. Se não der, desligue com **Ctrl + C** e rode `npx expo start --tunnel`. |
+| Aparece "Erro: sem permissão para usar a câmera" | Vá em **Ajustes** do celular → **Expo Go** → ative **Câmera**. |
+| A mensagem não chega ou chega errada | Use taxa **1**, deixe o ambiente mais escuro e aproxime o flash. |
+| Aparece "Sinal detectado" sem o flash ligar | A luz do ambiente está variando. Deixe o ambiente com luz constante e toque em **INICIAR** de novo. |
+| "BER não calculada: comprimento diferente" | O texto enviado é diferente do texto de referência (veja "Texto de referência" abaixo). |
+| Qualquer outro erro no Terminal | Rode `npm install` de novo e depois `npm start`. |
+
+### Texto de referência
+
+A BER compara a mensagem recebida com o texto do arquivo
+`src/vlc/referencia.js` (hoje: `ABCDEFGH`). Se o transmissor enviar outro
+texto, abra esse arquivo em qualquer editor de texto, troque o que está entre
+as aspas e salve.
+
+---
+
+# Parte técnica
 
 ## Estrutura
 
@@ -23,84 +154,62 @@ app.json                     nome, ícone, identificadores e permissões
 src/
 ├── vlc/
 │   ├── receiver.js          lógica do receptor (porte do MainActivity.kt original)
-│   └── referencia.js        texto de referência para a BER (antigo teste_vlc.txt)
+│   └── referencia.js        texto de referência para a BER
 └── light/
     ├── lightSensor.js       sensor de luminosidade (Android)
     └── CameraLightMeter.js  brilho da câmera (iPhone e Android)
 tests/
 └── simulacao.test.mjs       testes da lógica com um transmissor simulado
-assets/                      ícones do app
+assets/                      ícones do app (icon.svg é o desenho editável)
 ```
 
 A lógica (`src/vlc/receiver.js`) não depende de tela nem de plataforma: ela
 recebe um valor de luz por leitura e devolve o estado pelos callbacks. As
-fontes de luz ficam em `src/light/`. Assim dá para trocar a fonte sem mexer na
-lógica, e testar a lógica no computador.
+fontes de luz ficam em `src/light/`.
 
----
+## Comandos
 
-## Como rodar
+| Comando | Para que serve |
+|---|---|
+| `npm install` | instala as dependências |
+| `npm start` | inicia o servidor do Expo e mostra o QR code |
+| `npx expo start --tunnel` | igual ao anterior, para celular em outra rede |
+| `npm test` | roda os testes da lógica do receptor |
 
-Requisitos: Node.js 20 ou mais novo.
+## Testes
 
-```bash
-npm install
-npm start
-```
+`npm test` simula um transmissor (com ruído e relógio virtual) e confere:
+mensagem recebida com BER 0, taxas de 1 a 5 bit/s, leituras rápidas do
+sensor, mensagem com tamanho diferente da referência, falta do marcador
+final e espera sem flash.
 
-### iPhone (grátis, sem Xcode)
+## Gerar um app instalável
 
-1. Instale o **Expo Go** pela App Store.
-2. No computador, rode `npm start`. Aparece um QR code no terminal.
-3. Com o iPhone **na mesma rede Wi-Fi** do computador, aponte a **Câmera** do
-   iPhone para o QR code e toque no link. O app abre dentro do Expo Go.
-4. Toque em **Iniciar** e permita o acesso à câmera.
-
-Se o iPhone não estiver na mesma rede, use `npx expo start --tunnel`.
-
-Um app próprio instalado no iPhone (com ícone separado, fora do Expo Go)
-exige assinatura da Apple: conta Apple Developer (US$ 99/ano) para uso
-permanente, ou Apple ID grátis com validade de 7 dias. Para gerar esse app:
-`npx eas-cli@latest build -p ios`.
-
-### Android
-
-- **Expo Go:** instale o Expo Go pela Play Store e escaneie o QR code do
-  `npm start` pelo próprio Expo Go.
-- **APK:** `npx eas-cli@latest build -p android --profile preview` (na nuvem,
-  conta Expo grátis) ou localmente, com Android Studio:
-  ```bash
-  npx expo prebuild -p android
-  cd android && ./gradlew assembleRelease
-  ```
+- **Android (APK):** `npx eas-cli@latest build -p android --profile preview`
+  (na nuvem, com conta Expo grátis), ou localmente com Android Studio:
+  `npx expo prebuild -p android` e depois `cd android && ./gradlew assembleRelease`.
   O APK fica em `android/app/build/outputs/apk/release/`.
+- **iPhone:** um app próprio fora do Expo Go precisa da assinatura da Apple:
+  conta Apple Developer (US$ 99/ano) para uso permanente, ou Apple ID grátis
+  com validade de 7 dias. Comando: `npx eas-cli@latest build -p ios`.
 
-### Testes
-
-```bash
-npm test
-```
-
-Simulam um transmissor (com ruído e relógio virtual) e conferem: mensagem
-recebida com BER 0, taxas de 1 a 5 bit/s, leituras rápidas do sensor,
-mensagem com tamanho diferente da referência, falta do marcador final e
-espera sem flash.
+A pasta `android/` é gerada pelo Expo e não fica no repositório.
 
 ---
 
-## Histórico das mudanças
+# Histórico das mudanças
 
 ### Versão 1: app Android nativo (Kotlin)
 
 O projeto começou como um app Android em Kotlin (`MainActivity.kt`), que lia
-o sensor de luminosidade. Essa versão, e a versão híbrida intermediária,
-estão guardadas na tag
+o sensor de luminosidade. Essa versão e a versão híbrida intermediária estão
+guardadas na tag
 [`versao-kotlin-e-hibrida`](../../tree/versao-kotlin-e-hibrida).
 
 ### Versão 2: Expo (atual)
 
-Todo o projeto foi reestruturado em Expo, para gerar o app no iPhone e no
-Android a partir de um único código.
+O projeto foi reestruturado em Expo, para gerar o app no iPhone e no Android
+a partir de um único código.
 
 **O que continua igual** (`src/vlc/receiver.js` é uma tradução direta do
 `MainActivity.kt`):
@@ -128,10 +237,9 @@ Android a partir de um único código.
 | Ícone | ícone padrão do Android | ícone próprio |
 
 **Por que a câmera:** o iPhone não dá acesso ao sensor de luz para nenhum
-app. No iPhone, a luz é medida pelo brilho médio da imagem da câmera
-(0 a 255). Como o `expo-camera` não dá acesso aos pixels, a medição roda numa
-WebView com a câmera do aparelho, que também mostra a prévia para mirar o
-transmissor.
+app. Lá, a luz é medida pelo brilho médio da imagem da câmera (0 a 255). Como
+o `expo-camera` não dá acesso aos pixels, a medição roda numa WebView com a
+câmera do aparelho, que também mostra a prévia para mirar o transmissor.
 
 ### Pontos de atenção
 
