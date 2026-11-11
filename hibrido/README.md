@@ -34,6 +34,19 @@ HTTPS). Exemplo sem instalar nada: arraste `www/` em https://app.netlify.com/dro
 - **Android**: abra no Chrome → menu ⋮ → Instalar app / Adicionar à tela inicial.
 - **Computador**: no Chrome/Edge, ícone de instalar na barra de endereço.
 
+## Gerar o APK (Android)
+
+A pasta `android/` empacota o `www/` num app Android com Capacitor. O APK lê a
+luz pela câmera. É preciso o Android Studio (ou um JDK 21 e o Android SDK).
+
+```bash
+npm install
+npx cap sync android
+cd android && ./gradlew assembleDebug
+```
+
+O APK fica em `android/app/build/outputs/apk/debug/app-debug.apk`.
+
 ## Testar localmente
 
 ```bash
