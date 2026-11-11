@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Receptor VLC</title>
+  <meta name="theme-color" content="#0A2A66">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Receptor VLC">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>Receptor VLC</h1>
+    <p class="subtitle">Detecção de Comunicação Óptica (OOK)</p>
+
+    <section class="card">
+      <label for="editBitrate">Taxa de bits (bits/s)</label>
+      <input id="editBitrate" type="number" inputmode="numeric" min="1" max="5" placeholder="Ex: 5">
+
+      <label for="sourceSelect" class="spaced">Fonte de luz</label>
+      <select id="sourceSelect">
+        <option value="auto">Automático</option>
+        <option value="sensor">Sensor de luminosidade</option>
+        <option value="camera-front">Câmera frontal</option>
+        <option value="camera-back">Câmera traseira</option>
+      </select>
+    </section>
+
+    <video id="cameraPreview" class="preview" playsinline muted autoplay hidden></video>
+
+    <div class="buttons">
+      <button id="btnStartRx" class="start">Iniciar</button>
+      <button id="btnStopRx" class="stop">Parar</button>
+    </div>
+
+    <h2>Sensor de Luminosidade (Lux)</h2>
+    <pre id="textLux" class="box lux"></pre>
+
+    <h2>Bits Recebidos</h2>
+    <pre id="textBits" class="box bits"></pre>
+
+    <h2>Mensagem Decodificada</h2>
+    <pre id="textMessage" class="box message"></pre>
+  </main>
+
+  <script src="lightsensor.js"></script>
+  <script src="receiver.js"></script>
+  <script>
+    // PWA: permite instalar na tela inicial e usar offline
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>

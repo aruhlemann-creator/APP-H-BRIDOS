@@ -1,0 +1,9 @@
+{
+  "name": "receptor-vlc",
+  "version": "1.0.0",
+  "description": "Receptor VLC (OOK) — app web instalável (PWA) para qualquer dispositivo",
+  "private": true,
+  "scripts": {
+    "start": "npx --yes serve www"
+  }
+}
