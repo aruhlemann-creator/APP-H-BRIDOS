@@ -53,7 +53,9 @@
   <script src="receiver.js"></script>
   <script>
     // PWA: permite instalar na tela inicial e usar offline
-    if ('serviceWorker' in navigator) {
+    // (no APK os arquivos já estão no aparelho, então não precisa)
+    const isApp = !!(window.Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform());
+    if ('serviceWorker' in navigator && !isApp) {
       navigator.serviceWorker.register('sw.js').catch(() => {});
     }
   </script>

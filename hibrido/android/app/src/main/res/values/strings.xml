@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Receptor VLC</string>
+    <string name="title_activity_main">Receptor VLC</string>
+    <string name="package_name">com.example.ook_disp_fot_rx</string>
+    <string name="custom_url_scheme">com.example.ook_disp_fot_rx</string>
+</resources>
