@@ -1,40 +1,109 @@
 # Receptor VLC (OOK)
 
-Receptor de comunicação por luz visível (On-Off Keying). O app calibra o nível
-de luz ambiente, detecta o flash do transmissor, sincroniza pelo preâmbulo
-`10101010`, decodifica a mensagem em ASCII e calcula a BER comparando com
-`teste_vlc.txt`.
+Receptor de comunicação por luz visível (On-Off Keying), feito com
+**Expo (React Native)**. Roda no **iPhone** e no **Android** com o mesmo código.
 
-O repositório tem duas versões do mesmo receptor:
+O app calibra o nível de luz ambiente, detecta o flash do transmissor,
+sincroniza pelo preâmbulo `10101010`, decodifica a mensagem em ASCII e calcula
+a BER comparando com o texto de referência.
 
-| Pasta | Versão | Linguagem | Roda em | Fonte de luz |
-|---|---|---|---|---|
-| `app/` | original (nativa) | Kotlin | Android | sensor de luminosidade |
-| `hibrido/` | híbrida | HTML, CSS e JavaScript | iPhone, Android e computador | câmera |
+| Plataforma | Fonte de luz |
+|---|---|
+| Android | sensor de luminosidade (lux) ou câmera |
+| iPhone | câmera (o iOS não libera o sensor de luz para apps) |
 
 ---
 
-## O que mudou em relação ao projeto original
+## Estrutura
 
-### O projeto original foi mantido
+```
+App.js                       tela do app
+index.js                     ponto de entrada do Expo
+app.json                     nome, ícone, identificadores e permissões
+src/
+├── vlc/
+│   ├── receiver.js          lógica do receptor (porte do MainActivity.kt original)
+│   └── referencia.js        texto de referência para a BER (antigo teste_vlc.txt)
+└── light/
+    ├── lightSensor.js       sensor de luminosidade (Android)
+    └── CameraLightMeter.js  brilho da câmera (iPhone e Android)
+tests/
+└── simulacao.test.mjs       testes da lógica com um transmissor simulado
+assets/                      ícones do app
+```
 
-A pasta `app/` (Kotlin) não foi alterada. `MainActivity.kt`, o layout, o
-manifest e a configuração do Gradle do app continuam como estavam, e ela
-continua lendo o sensor de luminosidade do Android.
+A lógica (`src/vlc/receiver.js`) não depende de tela nem de plataforma: ela
+recebe um valor de luz por leitura e devolve o estado pelos callbacks. As
+fontes de luz ficam em `src/light/`. Assim dá para trocar a fonte sem mexer na
+lógica, e testar a lógica no computador.
 
-Na raiz do repositório foram adicionados:
+---
 
-- `README.md` (este arquivo);
-- `.github/workflows/pages.yml`, que publica a versão web no GitHub Pages;
-- duas linhas no `.gitignore` (`.kotlin` e `node_modules`).
+## Como rodar
 
-### Nova versão híbrida (`hibrido/`)
+Requisitos: Node.js 20 ou mais novo.
 
-A lógica do receptor foi convertida de Kotlin para JavaScript, para o mesmo
-código rodar em qualquer aparelho.
+```bash
+npm install
+npm start
+```
 
-**O que continua igual** (`hibrido/www/receiver.js` é uma tradução direta
-do `MainActivity.kt`):
+### iPhone (grátis, sem Xcode)
+
+1. Instale o **Expo Go** pela App Store.
+2. No computador, rode `npm start`. Aparece um QR code no terminal.
+3. Com o iPhone **na mesma rede Wi-Fi** do computador, aponte a **Câmera** do
+   iPhone para o QR code e toque no link. O app abre dentro do Expo Go.
+4. Toque em **Iniciar** e permita o acesso à câmera.
+
+Se o iPhone não estiver na mesma rede, use `npx expo start --tunnel`.
+
+Um app próprio instalado no iPhone (com ícone separado, fora do Expo Go)
+exige assinatura da Apple: conta Apple Developer (US$ 99/ano) para uso
+permanente, ou Apple ID grátis com validade de 7 dias. Para gerar esse app:
+`npx eas-cli@latest build -p ios`.
+
+### Android
+
+- **Expo Go:** instale o Expo Go pela Play Store e escaneie o QR code do
+  `npm start` pelo próprio Expo Go.
+- **APK:** `npx eas-cli@latest build -p android --profile preview` (na nuvem,
+  conta Expo grátis) ou localmente, com Android Studio:
+  ```bash
+  npx expo prebuild -p android
+  cd android && ./gradlew assembleRelease
+  ```
+  O APK fica em `android/app/build/outputs/apk/release/`.
+
+### Testes
+
+```bash
+npm test
+```
+
+Simulam um transmissor (com ruído e relógio virtual) e conferem: mensagem
+recebida com BER 0, taxas de 1 a 5 bit/s, leituras rápidas do sensor,
+mensagem com tamanho diferente da referência, falta do marcador final e
+espera sem flash.
+
+---
+
+## Histórico das mudanças
+
+### Versão 1: app Android nativo (Kotlin)
+
+O projeto começou como um app Android em Kotlin (`MainActivity.kt`), que lia
+o sensor de luminosidade. Essa versão, e a versão híbrida intermediária,
+estão guardadas na tag
+[`versao-kotlin-e-hibrida`](../../tree/versao-kotlin-e-hibrida).
+
+### Versão 2: Expo (atual)
+
+Todo o projeto foi reestruturado em Expo, para gerar o app no iPhone e no
+Android a partir de um único código.
+
+**O que continua igual** (`src/vlc/receiver.js` é uma tradução direta do
+`MainActivity.kt`):
 
 - calibração de 700 ms com o flash apagado;
 - detecção do flash com limiar = base + max(0,2; 1% da base);
@@ -42,72 +111,36 @@ do `MainActivity.kt`):
 - preâmbulo e marcador final `10101010`, com o marcador aceito só em bytes inteiros;
 - limite de 1600 bits (200 caracteres);
 - decodificação de 8 em 8 bits para ASCII;
-- cálculo da BER contra `teste_vlc.txt`;
-- as mesmas mensagens de estado na tela.
+- cálculo da BER contra o texto de referência;
+- as mesmas mensagens de estado e o mesmo layout de tela;
+- tela sempre ligada durante o uso.
 
 **O que mudou:**
 
-| | Original (`app/`) | Híbrido (`hibrido/`) |
+| | Versão 1 (Kotlin) | Versão 2 (Expo) |
 |---|---|---|
-| Linguagem | Kotlin | JavaScript, HTML e CSS |
-| Plataformas | Android | iPhone, Android e navegador |
-| Fonte de luz | sensor de luminosidade (lux) | câmera (brilho médio da imagem, 0 a 255) |
-| Tela | layout XML | mesmo visual em HTML, mais o seletor "Fonte de luz" e a prévia da câmera |
-| Temporização dos bits | `Handler.postAtTime` | `setTimeout` com horário absoluto (sem acúmulo de atraso) |
-| Instalação | APK | app web na tela inicial (PWA) ou APK gerado com Capacitor |
-| Ícone | ícone padrão do Android | ícone próprio (`hibrido/icon.svg`) |
+| Linguagem | Kotlin | JavaScript (React Native) |
+| Plataformas | Android | iPhone e Android |
+| Fonte de luz | sensor de luminosidade | sensor (Android) ou câmera (iPhone e Android) |
+| Organização | tela, sensor e lógica no `MainActivity.kt` | lógica, fontes de luz e tela em arquivos separados |
+| Texto de referência | `assets/teste_vlc.txt` | `src/vlc/referencia.js` |
+| Testes | nenhum | testes automáticos da lógica (`npm test`) |
+| Ícone | ícone padrão do Android | ícone próprio |
 
-**Por que a câmera em vez do sensor:** o iPhone e os navegadores não dão
-acesso ao sensor de luz para nenhum app. A câmera é o único sensor de luz
-disponível em todas as plataformas. A opção "Sensor de luminosidade" continua
-no código e aparece apenas onde o navegador oferece a API `AmbientLightSensor`.
-
-### Reorganização do código
-
-No original, o `MainActivity.kt` concentrava tela, leitura do sensor e lógica.
-Na versão híbrida, essas partes ficaram separadas:
-
-```
-hibrido/
-├── www/                     app web (o mesmo código para todas as plataformas)
-│   ├── index.html           estrutura da tela
-│   ├── style.css            visual
-│   ├── receiver.js          lógica do receptor (porte do MainActivity.kt)
-│   ├── lightsensor.js       leitura da luz (câmera ou sensor)
-│   ├── assets/teste_vlc.txt referência para a BER
-│   ├── manifest.webmanifest instalação na tela inicial
-│   └── sw.js                funcionamento offline
-└── android/                 projeto Android (Capacitor) que empacota www/ em APK
-```
-
-`receiver.js` recebe um número por leitura e não depende da plataforma. Só o
-`lightsensor.js` sabe de onde vem a luz. Assim, a fonte de luz pode mudar sem
-mexer na lógica.
+**Por que a câmera:** o iPhone não dá acesso ao sensor de luz para nenhum
+app. No iPhone, a luz é medida pelo brilho médio da imagem da câmera
+(0 a 255). Como o `expo-camera` não dá acesso aos pixels, a medição roda numa
+WebView com a câmera do aparelho, que também mostra a prévia para mirar o
+transmissor.
 
 ### Pontos de atenção
 
-- **Escala do valor:** a fórmula do limiar é a mesma, mas com a câmera o valor
-  é brilho (0 a 255), não lux. A tela continua mostrando o rótulo "Lux".
-  Em simulação, com ruído de cerca de 4% da base, um pico de ruído pode ser
-  tomado como início do sinal. Se o receptor sincronizar sem flash, o limiar
-  mínimo de 1% pode precisar aumentar.
+- **Escala com a câmera:** a fórmula do limiar é a mesma, mas o valor é
+  brilho (0 a 255), não lux. Em simulação, com ruído de cerca de 4% da base,
+  um pico de ruído pode ser tomado como início do sinal. Se o receptor
+  sincronizar sem flash, o limiar mínimo de 1% pode precisar aumentar.
 - **Exposição automática:** o app tenta travar a exposição da câmera onde o
-  aparelho permite (Chrome no Android). No iPhone isso não é possível. Use
-  taxas baixas (1 a 2 bit/s) e aponte o flash bem de frente para a câmera.
-- **Testes:** a lógica foi testada em simulação (mensagem "ABCDEFGH" a
-  5 bit/s, BER 0). A leitura pela câmera ainda precisa ser testada em
-  aparelhos reais.
-
----
-
-## Como usar
-
-**iPhone, Android ou computador (versão web):** abra o link do GitHub Pages
-deste repositório. No iPhone, abra no Safari e toque em Compartilhar →
-Adicionar à Tela de Início. A câmera exige HTTPS.
-
-**Android (APK):** veja as instruções de build em
-[hibrido/README.md](hibrido/README.md).
-
-**App original:** abra a raiz do repositório no Android Studio e rode o
-módulo `app`.
+  aparelho permite. No iPhone isso não é possível. Use taxas baixas (1 a
+  2 bit/s) e aponte o flash bem de frente para a câmera.
+- **Testes em aparelho:** a lógica foi testada em simulação. A leitura pela
+  câmera dentro do Expo Go ainda precisa ser testada em aparelhos reais.

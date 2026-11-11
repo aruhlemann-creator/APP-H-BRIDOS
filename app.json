@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "Receptor VLC",
+    "slug": "receptor-vlc",
+    "version": "2.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#F5F7FA",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.example.ookdispfotrx"
+    },
+    "android": {
+      "package": "com.example.ook_disp_fot_rx",
+      "adaptiveIcon": {
+        "backgroundColor": "#0A2A66",
+        "foregroundImage": "./assets/android-icon-foreground.png"
+      },
+      "permissions": ["android.permission.CAMERA"]
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "A câmera é usada para medir a luz do transmissor VLC.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ]
+    ]
+  }
+}
